@@ -105,3 +105,81 @@ void BattleManager::tick() {
         delete bullet;
     }
 }
+
+MainManager::MainManager() : selectedOption(0) {
+	image.load(ARROW);
+}
+
+MainManager::~MainManager() noexcept {
+}
+
+void MainManager::init() {
+	// 初始化主菜单
+	selectedOption = 0; // 默认选中第一个选项
+	nxt = 0;
+}
+
+void MainManager::draw(QPainter& painter) const {
+	// 绘制主菜单背景
+	painter.setPen(QPen(Qt::black, 2));
+	painter.setBrush(QBrush(Qt::black));
+	painter.drawRect(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+
+	// 箭头
+	QVector2D imageVec = position - QVector2D(0.5F * image.width(), 0.5F * image.height());
+	painter.setPen(QPen(Qt::white, 1));
+	painter.setBrush(QBrush(Qt::transparent));
+	painter.drawPixmap(imageVec.toPoint(), image);
+
+	// 绘制主菜单选项
+	painter.setPen(QPen(Qt::white, 5));
+	painter.drawLine(50, 185, SCREEN_WIDTH - 50, 185);
+
+	painter.setPen(QPen(Qt::white, 2));
+	QFont font = QFont(Handler::font);
+	font.setPixelSize(80);
+	font.setWeight(QFont::Medium);
+	painter.setFont(font);
+	painter.drawText(50, 150, "Plane Fight");
+
+	font.setPixelSize(30);
+	painter.setFont(font);
+
+	QString options[3] = {"Start", "Settings", "Exit"};
+	for (int i = 0; i < 3; i++) {
+		if (i == selectedOption) {
+			painter.setPen(QPen(Qt::yellow, 2)); // 选中的选项用黄色显示
+		} else {
+			painter.setPen(QPen(Qt::white, 2));
+		}
+		painter.drawText(250, 300 + i * 40, options[i]);
+	}
+}
+
+void MainManager::tick() {
+	// 主菜单逻辑更新
+	// 通常不需要在这里做太多事情，除非有动画效果
+	if (Handler::keyPressSet.value(Qt::Key_W, false)) {
+		selectedOption = (selectedOption - 1 + 3) % 3; // 循环选择
+		position.setY(290 + selectedOption * 40);
+	}
+	if (Handler::keyPressSet.value(Qt::Key_S, false)) {
+		selectedOption = (selectedOption + 1) % 3; // 循环选择
+		position.setY(290 + selectedOption * 40);
+	}
+	if (Handler::keyPressSet.value(Qt::Key_J, false)) {
+		switch (selectedOption) {
+			case 0: // 开始游戏
+				// 切换到 BattleManager
+				nxt = 1;
+				break;
+			case 1: // 设置
+				// 切换到 SettingManager
+				nxt = 2;
+				break;
+			case 2: // 退出
+				QApplication::quit();
+				break;
+		}
+	}
+}
