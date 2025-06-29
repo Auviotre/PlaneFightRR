@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QApplication>
 #include <QPainter>
 #include <QList>
 #include <QMap>
@@ -12,6 +13,7 @@
 
 class ScreenManager {
 public:
+	int nxt = 0;
 	ScreenManager() {}
     virtual void init() = 0;
     virtual void draw(QPainter& painter) const = 0;
@@ -28,4 +30,19 @@ public:
     virtual void init() override;
     void draw(QPainter& painter) const override;
     void tick() override;
+};
+
+class MainManager : public ScreenManager {
+public:
+	MainManager();
+	~MainManager() noexcept;
+
+	virtual void init() override;
+	void draw(QPainter& painter) const override;
+	void tick() override;
+
+private:
+	QPixmap image;
+	QVector2D position = QVector2D(230, 295);
+	int selectedOption; // 当前选中的菜单选项
 };
