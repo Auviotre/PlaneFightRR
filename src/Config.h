@@ -16,3 +16,4 @@
 #define PLAYER_BULLET "../src/resource/player/player_bullet"
 #define ENEMY "../src/resource/enemy/enemy"
 #define ENEMY_BULLET "../src/resource/enemy/bullets/enemy_bullet"
+#define ARROW "../src/resource/system/arrow"
