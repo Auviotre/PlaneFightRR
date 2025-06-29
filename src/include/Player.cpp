@@ -11,8 +11,8 @@ Player::Player(QString location) : Entity("Player", location, 15) {
 	position.setX(SCREEN_WIDTH * 0.5 - image.width() * 0.5);
 	position.setY(SCREEN_HEIGHT * 0.8 - image.height());
 	attributeMap.setValue(Attribute::MAX_DURABILITY, 100);
-	attributeMap.setValue(Attribute::POWER, 10);
-	attributeMap.setValue(Attribute::DEFENCE, 0);
+	attributeMap.setValue(Attribute::POWER, 20);
+	attributeMap.setValue(Attribute::DEFENCE, 4);
 	durability = getMaxDurability();
 }
 

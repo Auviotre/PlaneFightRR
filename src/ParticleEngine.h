@@ -22,6 +22,7 @@ public:
 	Particle(double s, double time);
 	~Particle();
 
+	double getSize() const;
 	void setColor(QColor color);
 	void setFadeColor(QColor color);
 	void setPos(QVector2D p);

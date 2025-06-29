@@ -6,6 +6,12 @@ BattleManager::BattleManager() {
 BattleManager::~BattleManager() noexcept {
 }
 
+void BattleManager::clear() {
+    Player::players.remove(0, Player::players.count());
+    Bullet::bullets.remove(0, Bullet::bullets.count());
+    Enemy::enemies.remove(0, Enemy::enemies.count());
+}
+
 void BattleManager::init() {
 	this->timer = 0;
 	this->summonTime = 0;
@@ -39,6 +45,10 @@ void BattleManager::drawFront(QPainter& painter) const {
         painter.drawRect(QRect(0, i * 10, 10, 10));
         painter.drawRect(QRect(GAME_WIDTH + 10, i * 10, 10, 10));
     }
+    if (state < 2) {
+        painter.setBrush(QBrush(QColor(0, 0, 0, 100)));
+        painter.drawRect(QRect(10, 10, GAME_WIDTH, GAME_HEIGHT));
+    }
     // Player Info
     painter.setPen(QPen(Qt::white, 1));
     
@@ -48,6 +58,7 @@ void BattleManager::drawFront(QPainter& painter) const {
     painter.setFont(font);
     painter.drawText(GAME_WIDTH + 30, 130, QString("EMY_C: %1").arg(Enemy::enemies.count()));
     painter.drawText(GAME_WIDTH + 30, 150, QString("BLT_C: %1").arg(Bullet::bullets.count()));
+    painter.drawText(GAME_WIDTH + 30, 170, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
     painter.drawText(GAME_WIDTH + 30, 30, QString("TIMER: %1s").arg(timer));
     
     int id = 0;
@@ -58,26 +69,34 @@ void BattleManager::drawFront(QPainter& painter) const {
 }
 
 void BattleManager::tick() {
-    timer += 0.001 * GAME_RATE;
+	if (Handler::keyPressSet.value(Qt::Key_Space, false)) {
+        if (state == RUNNING) state = PAUSE;
+        else if (state == PAUSE) state = RUNNING;
+    }
+    if (state < 2 && Handler::keyPressSet.value(Qt::Key_R, false)) {
+        changeTo = 3;
+    }
+    if (state != RUNNING) return;
     // Tick
+    timer += 0.001 * GAME_RATE;
     for (Player *player : Player::players) player->tick();
     for (Enemy *enemy : Enemy::enemies) enemy->tick();
     for (Bullet *bullet : Bullet::bullets) bullet->tick();
     // Enemy Summon
     if (timer - summonTime > 1) {
         summonTime += 1;
+        Enemy *newEnemy;
         if (rand() % 2 > 0) {
-            Enemy *newEnemy;
             newEnemy = new Enemies::Base;
             newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
             newEnemy->setMovement(0, 80 + rand() % 80);
-            Enemy::add(newEnemy);
         } else {
-            // newEnemy = new Enemies::Strike;
-            // int r = rand() % 2;
-            // newEnemy->setPosition(r ? -30 : GAME_WIDTH + 50, rand() % 100);
-            // newEnemy->setMovement(r ? 320 : -320, 400);
+            newEnemy = new Enemies::Strike;
+            int r = rand() % 2;
+            newEnemy->setPosition(r ? -30 : GAME_WIDTH + 50, rand() % 100);
+            newEnemy->setMovement(r ? 320 : -320, 400);
         }
+        Enemy::add(newEnemy);
     }
     // Collision
     for (Enemy *enemy : Enemy::enemies) {
@@ -124,20 +143,26 @@ MainManager::MainManager() : selectedOption(0) {
 MainManager::~MainManager() noexcept {
 }
 
+void MainManager::clear() {
+    Player::players.remove(0, Player::players.count());
+}
+
 void MainManager::init() {
 	// 初始化主菜单
 	selectedOption = 0; // 默认选中第一个选项
-	nxt = 0;
+	changeTo = 0;
 }
 
-void MainManager::draw(QPainter& painter) const {
+void MainManager::drawBack(QPainter& painter) const {
 	// 绘制主菜单背景
 	painter.setPen(QPen(Qt::black, 2));
 	painter.setBrush(QBrush(Qt::black));
 	painter.drawRect(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+}
 
+void MainManager::drawFront(QPainter& painter) const {
 	// 箭头
-	QVector2D imageVec = position - QVector2D(0.5F * image.width(), 0.5F * image.height());
+	QVector2D imageVec = posDisplay - QVector2D(0.5F * image.width(), 0.5F * image.height());
 	painter.setPen(QPen(Qt::white, 1));
 	painter.setBrush(QBrush(Qt::transparent));
 	painter.drawPixmap(imageVec.toPoint(), image);
@@ -163,30 +188,31 @@ void MainManager::draw(QPainter& painter) const {
 		} else {
 			painter.setPen(QPen(Qt::white, 2));
 		}
-		painter.drawText(250, 300 + i * 40, options[i]);
+		painter.drawText(100, 300 + i * 80, options[i]);
 	}
 }
 
 void MainManager::tick() {
 	// 主菜单逻辑更新
 	// 通常不需要在这里做太多事情，除非有动画效果
+    posDisplay = posDisplay + (position - posDisplay) * 10 * GAME_CLOCK;
 	if (Handler::keyPressSet.value(Qt::Key_W, false)) {
 		selectedOption = (selectedOption - 1 + 3) % 3; // 循环选择
-		position.setY(290 + selectedOption * 40);
+		position.setY(290 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_S, false)) {
 		selectedOption = (selectedOption + 1) % 3; // 循环选择
-		position.setY(290 + selectedOption * 40);
+		position.setY(290 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_J, false)) {
 		switch (selectedOption) {
 			case 0: // 开始游戏
 				// 切换到 BattleManager
-				nxt = 1;
+				changeTo = 1;
 				break;
 			case 1: // 设置
 				// 切换到 SettingManager
-				nxt = 2;
+				changeTo = 2;
 				break;
 			case 2: // 退出
 				QApplication::quit();

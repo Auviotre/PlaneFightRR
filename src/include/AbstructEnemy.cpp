@@ -22,7 +22,7 @@ void Enemy::tick() {
 void Enemy::kill(bool display) {
 	Entity::kill(display);
 	for (int i = 0; display && i < 16; i++) {
-		Particle* particle = new Particle(3, 0.5);
+		Particle* particle = new Particle(4, 0.5);
 		particle->setPos(getPosition());
 		particle->setMove(ParticleEngine::randOffset(60) + ParticleEngine::randOffset(20));
 		particle->setColor(QColor(160, 160, 160, 208));

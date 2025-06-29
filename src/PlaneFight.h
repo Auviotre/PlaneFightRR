@@ -34,7 +34,8 @@ private:
     Ui_PlaneFight* ui;
     QTimer timer;
     WindowState state;
-    ScreenManager* manager;
+    ScreenManager* manager = new MainManager;
+    float changeLayer = 0;
 
     void updateManager();
 

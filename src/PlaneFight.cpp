@@ -18,6 +18,7 @@ void MainWindow::init() {
 }
 
 void MainWindow::updateManager() {
+    manager->clear();
     switch (this->state) {
         case MAIN: manager = new MainManager; break;
         case BATTLE: manager = new BattleManager; break;
@@ -35,25 +36,14 @@ void MainWindow::playGame() {
         ScreenShaker::tick();
         ParticleEngine::tick();
         for (int key : Handler::keyPressSet.keys()) Handler::keyPressSet.insert(key, false);
-        switch (manager->nxt) {
-            case 0:
-                break;
-            case 1:
-                this->state = BATTLE;
-                updateManager();
-                this->setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-                this->setWindowTitle(GAME_TITLE);
-                this->setWindowIcon(QIcon(GAME_ICON));
-                this->timer.setInterval(GAME_RATE);
-                break;
-            case 2:
-                this->state = SETTING;
-                updateManager();
-                this->setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-                this->setWindowTitle(GAME_TITLE);
-                this->setWindowIcon(QIcon(GAME_ICON));
-                this->timer.setInterval(GAME_RATE);
-                break;
+        changeLayer = changeLayer + ((manager->changeTo ? 1 : 0) - changeLayer) * 7.5 * GAME_CLOCK;
+        if (changeLayer > 0.99) {
+            switch (manager->changeTo) {
+                case 0: break;
+                case 1: this->state = BATTLE; updateManager(); break;
+                case 2: this->state = SETTING; updateManager(); break;
+                case 3: this->state = MAIN; updateManager(); break;
+            }
         }
     });
 }
@@ -81,5 +71,7 @@ void MainWindow::paintEvent(QPaintEvent* event) {
     manager->drawBack(painter);
     ParticleEngine::draw(painter);
     manager->drawFront(painter);
-    painter.drawText(GAME_WIDTH + 30, 170, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
+    painter.setBrush(QBrush(Qt::black));
+    painter.setBrush(QBrush(QColor(0, 0, 0, (int) (changeLayer * 255))));
+    painter.drawRect(QRect(-10, -10, SCREEN_WIDTH + 20, SCREEN_HEIGHT + 20));
 }

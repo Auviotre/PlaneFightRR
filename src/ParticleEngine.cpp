@@ -45,12 +45,15 @@ Particle::~Particle() {}
 
 QColor Particle::getCurrentColor() const {
 	float modifier = timer / lifetime;
-	if (!hasFade) return QColor(baseColor.red(), baseColor.green(), baseColor.blue(), modifier * baseColor.alpha());
+	if (!hasFade) return baseColor;
 	float r = modifier * baseColor.red() + (1 - modifier) * fadeColor.red();
 	float g = modifier * baseColor.green() + (1 - modifier) * fadeColor.green();
 	float b = modifier * baseColor.blue() + (1 - modifier) * fadeColor.blue();
 	float alpha = modifier * baseColor.alpha();
 	return QColor((int) r, (int) g, (int) b, (int) alpha);
+}
+double Particle::getSize() const {
+	return timer / lifetime * size;
 }
 
 void Particle::setColor(QColor color) {
@@ -69,13 +72,13 @@ void Particle::setMove(QVector2D m) {
 }
 void Particle::tick() {
 	timer -= GAME_CLOCK;
-	size -= GAME_CLOCK;
-	if (size <= 0 || timer <= 0) discard = true;
+	if (timer <= 0) discard = true;
 	pos += move * GAME_CLOCK;
 }
 void Particle::draw(QPainter &painter) const {
     painter.setPen(QPen(getCurrentColor()));
     painter.setBrush(QBrush(getCurrentColor()));
-	QVector2D newPos = pos - QVector2D(size, size);
-	painter.drawEllipse(newPos.x(), newPos.y(), size * 2, size * 2);
+	double s = getSize();
+	QVector2D newPos = pos - QVector2D(s, s);
+	painter.drawEllipse(newPos.x(), newPos.y(), s * 2, s * 2);
 }
