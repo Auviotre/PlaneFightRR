@@ -11,6 +11,7 @@ find_package(Qt6 COMPONENTS Widgets REQUIRED) # Qt COMPONENTS
 aux_source_directory(./src srcs)
 aux_source_directory(./src/include includes)
 aux_source_directory(./src/registers regs)
+aux_source_directory(./src/resource rsrc)
 
 # Specify MSVC UTF-8 encoding   
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
@@ -21,5 +22,6 @@ add_executable(${PROJECT_NAME}
     ${srcs} 
     ${includes}
     ${regs}
+    ${rsrc}
 ) 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets) # Qt6 Shared Library

@@ -18,8 +18,7 @@ public:
 	~Enemy();
 	
 	void tick() override;
-
-	void behaviorTick() override;
+	void kill(bool display) override;
 
 	void collisionWith(Player* player);
 	

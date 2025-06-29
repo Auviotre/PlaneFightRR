@@ -31,6 +31,8 @@ void MainWindow::playGame() {
     connect(&timer, &QTimer::timeout, [=]() {
         update();
         manager->tick();
+        ScreenShaker::tick();
+        ParticleEngine::tick();
         for (int key : Handler::keyPressSet.keys()) Handler::keyPressSet.insert(key, false);
     });
 }
@@ -54,5 +56,9 @@ void MainWindow::focusOutEvent(QFocusEvent* event) {
 
 void MainWindow::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
-    manager->draw(painter);
+    painter.setTransform(QTransform().translate(ScreenShaker::shake.x(), ScreenShaker::shake.y()));
+    manager->drawBack(painter);
+    ParticleEngine::draw(painter);
+    manager->drawFront(painter);
+    painter.drawText(GAME_WIDTH + 30, 170, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
 }

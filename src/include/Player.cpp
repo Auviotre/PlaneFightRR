@@ -42,7 +42,7 @@ void Player::behaviorTick() {
 			fireTimer = 0.16;
 			Bullet *bullet = new Bullets::PlayerBase;
 			bullet->setPosition(getPosition());
-			bullet->setMovement(0, -200);
+			bullet->setMovement(0, -400);
 			bullet->setDamage(attributeMap.getValue(Attribute::POWER));
 			bullet->owner = this;
 			Bullet::add(bullet);

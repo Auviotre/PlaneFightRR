@@ -28,7 +28,7 @@ void Entity::tick() {
 bool Entity::damage(double amount, Entity* attacker) {
 	if (attacker == this) return false;
 	double left = getDurability() - amount;
-	if (left <= 0) kill();
+	if (left <= 0) kill(true);
 	setDurability(left);
 	return true;
 }

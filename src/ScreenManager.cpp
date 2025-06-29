@@ -12,11 +12,14 @@ void BattleManager::init() {
     Player::add(new Player(PLAYER_PLANE));
 }
 
-void BattleManager::draw(QPainter& painter) const {
+void BattleManager::drawBack(QPainter& painter) const {
     // BackGround
     painter.setPen(QPen(Qt::black, 2));
     painter.setBrush(QBrush(Qt::black));
     painter.drawRect(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+}
+
+void BattleManager::drawFront(QPainter& painter) const {
     // Entities
     for (Bullet *bullet : Bullet::bullets) bullet->draw(painter);
     for (Enemy *enemy : Enemy::enemies) enemy->draw(painter);
@@ -61,12 +64,20 @@ void BattleManager::tick() {
     for (Enemy *enemy : Enemy::enemies) enemy->tick();
     for (Bullet *bullet : Bullet::bullets) bullet->tick();
     // Enemy Summon
-    if (timer - summonTime > 2.4) {
-        summonTime += 2.4;
-        Enemy *newEnemy = new Enemies::Base;
-        newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
-        newEnemy->setMovement(0, 100 + rand() % 100);
-        Enemy::add(newEnemy);
+    if (timer - summonTime > 1) {
+        summonTime += 1;
+        if (rand() % 2 > 0) {
+            Enemy *newEnemy;
+            newEnemy = new Enemies::Base;
+            newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
+            newEnemy->setMovement(0, 80 + rand() % 80);
+            Enemy::add(newEnemy);
+        } else {
+            // newEnemy = new Enemies::Strike;
+            // int r = rand() % 2;
+            // newEnemy->setPosition(r ? -30 : GAME_WIDTH + 50, rand() % 100);
+            // newEnemy->setMovement(r ? 320 : -320, 400);
+        }
     }
     // Collision
     for (Enemy *enemy : Enemy::enemies) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG (true)
+#define DEBUG (false)
 
 #define SCREEN_HEIGHT (800)
 #define SCREEN_WIDTH (640)
@@ -8,7 +8,7 @@
 #define GAME_WIDTH (420)
 #define GAME_TITLE "PlaneFight v0.0"
 #define GAME_ICON "../src/resource/system/tick"
-#define GAME_RATE (2)
+#define GAME_RATE (10)
 #define GAME_CLOCK (0.001 * GAME_RATE)
 #define FONT "DTM-momo"
 

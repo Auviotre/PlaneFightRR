@@ -4,6 +4,8 @@
 
 class Bullet : public Object {
 	double damage = 0;
+protected:
+	double particleTimer = 0;
 public:
     static QVector<Bullet *> bullets;
     static void add(Bullet* bullet);

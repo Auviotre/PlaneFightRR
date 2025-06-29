@@ -11,11 +11,8 @@ Object::~Object() {}
 
 void Object::tick() {
 	timer += GAME_CLOCK;
-}
-
-void Object::setImageOffset(int x, int y) {
-	imageOffset.setX(x);
-	imageOffset.setY(y);
+	if (imageRotation > 360) imageRotation -= 360;
+	else if (imageRotation < 0) imageRotation += 360;
 }
 
 double Object::getSize() const {
@@ -44,19 +41,19 @@ void Object::setMovement(int x, int y) {
 }
 
 void Object::draw(QPainter &painter) const {
-	QVector2D imageVec = position - QVector2D(0.5F * image.width(), 0.5F * image.height());
-	painter.setPen(QPen(Qt::white, 1));
+	QPixmap trans = image.transformed(QTransform().rotate(imageRotation), Qt::SmoothTransformation);
+	QVector2D pos = position + - QVector2D(0.5*trans.width(), 0.5*trans.height());
+	painter.setPen(QPen(Qt::white, 2));
 	painter.setBrush(QBrush(Qt::transparent));
-	painter.drawPixmap(imageVec.toPoint(), image);
+	painter.drawPixmap(pos.toPoint(), trans);
 	if (DEBUG) {
-		QVector2D newPos = position + imageOffset;
-		newPos -= QVector2D(size, size);
+		QVector2D newPos = position - QVector2D(size, size);
 		painter.drawEllipse(newPos.x(), newPos.y(), size * 2, size * 2);
 		painter.drawPoint(position.toPoint());
 		// painter.drawText(position.toPoint(), QString("  %1").arg(descriptId));
 	}
 }
 
-void Object::kill() {
+void Object::kill(bool display) {
 	this->discard = true;
 }

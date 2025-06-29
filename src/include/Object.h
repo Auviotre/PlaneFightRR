@@ -5,12 +5,13 @@
 #include <QPixmap>
 #include <QRect>
 #include <QMap>
+#include "../ScreenShaker.h"
 #include "../Config.h"
 
 class Object {
 protected:
 	QPixmap image;
-	QVector2D imageOffset = QVector2D(0, 0);
+	double imageRotation = 0;
 	double size;
 	QVector2D position = QVector2D(0, 0);
 	QVector2D movement = QVector2D(0, 0);
@@ -27,8 +28,6 @@ public:
 
 	virtual void tick();
 
-	void setImageOffset(int x, int y);
-
 	double getSize() const;
 	QVector2D getPosition() const;
 
@@ -41,5 +40,5 @@ public:
 
 	void draw(QPainter &painter) const;
 	
-	virtual void kill();
+	virtual void kill(bool display);
 };

@@ -14,27 +14,26 @@ Enemy::~Enemy() {}
 
 void Enemy::tick() {
 	Entity::tick();
-	if (position.y() > SCREEN_HEIGHT + 20) {
-		kill();
+	if (position.y() > SCREEN_HEIGHT + 50 || position.y() < -50 || position.x() < -50 || position.x() > GAME_WIDTH + 70) {
+		kill(false);
 	}
 }
 
-void Enemy::behaviorTick() {
-	fireTimer += GAME_CLOCK;
-	if (fireTimer > 1) {
-		fireTimer = 0;
-		Bullet *bullet = new Bullets::Base;
-		bullet->setPosition(getPosition());
-		bullet->setMovement(movement.x(), movement.y() + 100);
-		bullet->setDamage(attributeMap.getValue(Attribute::POWER));
-		bullet->owner = this;
-		Bullet::add(bullet);
+void Enemy::kill(bool display) {
+	Entity::kill(display);
+	for (int i = 0; display && i < 16; i++) {
+		Particle* particle = new Particle(3, 0.5);
+		particle->setPos(getPosition());
+		particle->setMove(ParticleEngine::randOffset(60) + ParticleEngine::randOffset(20));
+		particle->setColor(QColor(160, 160, 160, 208));
+		ParticleEngine::add(particle);
 	}
 }
 
 void Enemy::collisionWith(Player* player) {
+	ScreenShaker::set(6);
 	player->damage(this->durability / 10, this);
-	kill();
+	kill(true);
 }
 
 bool Enemy::damage(double amount, Entity *attacker) {

@@ -14,7 +14,8 @@ class ScreenManager {
 public:
 	ScreenManager() {}
     virtual void init() = 0;
-    virtual void draw(QPainter& painter) const = 0;
+    virtual void drawBack(QPainter& painter) const = 0;
+    virtual void drawFront(QPainter& painter) const = 0;
     virtual void tick() = 0;
 };
 
@@ -26,6 +27,7 @@ public:
 	~BattleManager() noexcept;
 
     virtual void init() override;
-    void draw(QPainter& painter) const override;
+    void drawBack(QPainter& painter) const override;
+    void drawFront(QPainter& painter) const override;
     void tick() override;
 };

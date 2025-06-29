@@ -10,7 +10,9 @@
 #include <QTimer>
 #include "ui_PlaneFight.h"
 #include "Config.h"
+#include "ScreenShaker.h"
 #include "ScreenManager.h"
+#include "ParticleEngine.h"
 #include "include/Handler.h"
 
 class MainWindow : public QMainWindow {
