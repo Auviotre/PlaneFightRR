@@ -50,7 +50,6 @@ void Object::draw(QPainter &painter) const {
 		QVector2D newPos = position - QVector2D(size, size);
 		painter.drawEllipse(newPos.x(), newPos.y(), size * 2, size * 2);
 		painter.drawPoint(position.toPoint());
-		// painter.drawText(position.toPoint(), QString("  %1").arg(descriptId));
 	}
 }
 

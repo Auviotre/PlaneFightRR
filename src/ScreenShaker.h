@@ -8,6 +8,7 @@ public:
 	static QVector2D shake;
 	static QVector2D shakeRange;
 	static double shakeTimer;
+    static double modifier;
 	
 	ScreenShaker();
 	static void set(double r);

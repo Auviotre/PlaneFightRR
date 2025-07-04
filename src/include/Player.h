@@ -7,6 +7,7 @@
 class Player : public Entity {
 	double fireTimer = 0;
 public:
+	int storage = 10;
     static QVector<Player *> players;
     static void add(Player* player);
 
@@ -21,4 +22,7 @@ public:
 
 	bool damage(double amount, Entity *attacker) override;
 	bool damage(double amount, Object *bullet, Entity *attacker) override;
+
+	void draw(QPainter &painter) const;
+	void info(QPainter &painter, int id) const;
 };

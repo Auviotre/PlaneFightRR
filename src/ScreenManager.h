@@ -52,7 +52,11 @@ public:
 
 private:
 	QPixmap image;
-	QVector2D position = QVector2D(80, 295);
+	QVector2D position = QVector2D(80, 289);
 	QVector2D posDisplay = QVector2D(80, SCREEN_HEIGHT + 100);
 	int selectedOption; // 当前选中的菜单选项
+};
+
+class SettingManager {
+    
 };

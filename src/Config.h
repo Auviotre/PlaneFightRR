@@ -14,6 +14,11 @@
 
 #define PLAYER_PLANE "../src/resource/player/plane1"
 #define PLAYER_BULLET "../src/resource/player/player_bullet"
+#define PLAYER_ROCKET "../src/resource/player/player_rocket"
 #define ENEMY "../src/resource/enemy/enemy"
+#define ENEMY_HEALING  "../src/resource/enemy/enemy_heal"
+#define ENEMY_MULTI "../src/resource/enemy/enemy_bu"
+#define ENEMY_BOOST "../src/resource/enemy/enemy_da"
 #define ENEMY_BULLET "../src/resource/enemy/bullets/enemy_bullet"
+#define ENEMY_ROCKET "../src/resource/enemy/bullets/enemy_rocket"
 #define ARROW "../src/resource/system/arrow"

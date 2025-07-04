@@ -9,7 +9,6 @@ public:
     static QVector<Enemy *> enemies;
     static void add(Enemy *enemy);
 
-	int score;
 	double fireTimer = 0;
 
 	Enemy();

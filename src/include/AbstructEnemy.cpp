@@ -7,7 +7,8 @@ void Enemy::add(Enemy *enemy) {
 
 Enemy::Enemy() : Entity() {}
 
-Enemy::Enemy(QString id, QString location, double size, int score) : Entity(id, location, size), score(score) {
+Enemy::Enemy(QString id, QString location, double size, int score) : Entity(id, location, size) {
+	this->score = score;
 }
 
 Enemy::~Enemy() {}
@@ -20,6 +21,13 @@ void Enemy::tick() {
 }
 
 void Enemy::kill(bool display) {
+	if (lastHurt != nullptr && Player::players.contains(lastHurt)) {
+		if (rand() % 3 == 0 && dynamic_cast<Player *>(lastHurt)) {
+			lastHurt->score += this->score;
+			Player *p = dynamic_cast<Player *>(lastHurt);
+			p->storage++;
+		}
+	}
 	Entity::kill(display);
 	for (int i = 0; display && i < 16; i++) {
 		Particle* particle = new Particle(4, 0.5);
@@ -31,16 +39,19 @@ void Enemy::kill(bool display) {
 }
 
 void Enemy::collisionWith(Player* player) {
-	ScreenShaker::set(6);
-	player->damage(this->durability / 10, this);
-	kill(true);
+	if (player->damage(player->getMaxDurability()/2, this)) {
+		ScreenShaker::set(4);
+		kill(true);
+	}
 }
 
 bool Enemy::damage(double amount, Entity *attacker) {
+	lastHurt = attacker;
 	return Entity::damage(amount, attacker);
 }
 
 bool Enemy::damage(double amount, Object *bullet, Entity *attacker) {
 	if (bullet->descriptId.indexOf("player_bullet") == -1) return false;
+	lastHurt = attacker;
 	return Entity::damage(amount, bullet, attacker);
 }

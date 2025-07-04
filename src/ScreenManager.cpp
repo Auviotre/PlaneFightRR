@@ -15,7 +15,9 @@ void BattleManager::clear() {
 void BattleManager::init() {
 	this->timer = 0;
 	this->summonTime = 0;
-    Player::add(new Player(PLAYER_PLANE));
+    Player *p1 = new Player(PLAYER_PLANE);
+    p1->descriptId = "P1";
+    Player::add(p1);
 }
 
 void BattleManager::drawBack(QPainter& painter) const {
@@ -48,24 +50,35 @@ void BattleManager::drawFront(QPainter& painter) const {
     if (state < 2) {
         painter.setBrush(QBrush(QColor(0, 0, 0, 100)));
         painter.drawRect(QRect(10, 10, GAME_WIDTH, GAME_HEIGHT));
+        painter.setPen(QPen(Qt::white, 1));
+        QFont font = QFont(Handler::font);
+        font.setPixelSize(20);
+        font.setWeight(QFont::Medium);
+        painter.setFont(font);
+        painter.drawText(40, 150, state == PAUSE ? QString("Pause...") : QString("You Failed!"));
+        painter.drawText(40, 170, QString("Press 'R' to return.").arg(Enemy::enemies.count()));
     }
     // Player Info
     painter.setPen(QPen(Qt::white, 1));
-    
     QFont font = QFont(Handler::font);
     font.setPixelSize(20);
     font.setWeight(QFont::Medium);
     painter.setFont(font);
-    painter.drawText(GAME_WIDTH + 30, 130, QString("EMY_C: %1").arg(Enemy::enemies.count()));
-    painter.drawText(GAME_WIDTH + 30, 150, QString("BLT_C: %1").arg(Bullet::bullets.count()));
-    painter.drawText(GAME_WIDTH + 30, 170, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
+    painter.drawText(GAME_WIDTH + 30, 430, QString("EMY_C: %1").arg(Enemy::enemies.count()));
+    painter.drawText(GAME_WIDTH + 30, 450, QString("BLT_C: %1").arg(Bullet::bullets.count()));
+    painter.drawText(GAME_WIDTH + 30, 470, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
     painter.drawText(GAME_WIDTH + 30, 30, QString("TIMER: %1s").arg(timer));
     
     int id = 0;
-    for (Player *player : Player::players) {
-        painter.drawText(GAME_WIDTH + 30, 50 + id * 20, QString("DRTY: %1/%2").arg(player->getDurability()).arg(player->getMaxDurability()));
-        id++;
-    }
+    for (Player *player : Player::players) player->info(painter, id++);
+}
+
+Enemy* getRand() {
+    int i = rand() % 100;
+    if (i < 70) return new Enemies::Base;
+    if (i < 80) return new Enemies::Multi;
+    if (i < 90) return new Enemies::Boost;
+    return new Enemies::Healing;
 }
 
 void BattleManager::tick() {
@@ -76,7 +89,10 @@ void BattleManager::tick() {
     if (state < 2 && Handler::keyPressSet.value(Qt::Key_R, false)) {
         changeTo = 3;
     }
-    if (state != RUNNING) return;
+    bool allDead = true;
+    for (Player *player : Player::players) if (player->getDurability() > 0) allDead = false;
+    if (allDead) state = DEAD;
+    if (state == PAUSE) return;
     // Tick
     timer += 0.001 * GAME_RATE;
     for (Player *player : Player::players) player->tick();
@@ -86,17 +102,17 @@ void BattleManager::tick() {
     if (timer - summonTime > 1) {
         summonTime += 1;
         Enemy *newEnemy;
-        if (rand() % 2 > 0) {
-            newEnemy = new Enemies::Base;
-            newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
-            newEnemy->setMovement(0, 80 + rand() % 80);
-        } else {
+        newEnemy = getRand();
+        newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
+        newEnemy->setMovement(0, 80 + rand() % 80);
+        Enemy::add(newEnemy);
+        if (rand() % 5 == 0) {
             newEnemy = new Enemies::Strike;
             int r = rand() % 2;
             newEnemy->setPosition(r ? -30 : GAME_WIDTH + 50, rand() % 100);
             newEnemy->setMovement(r ? 320 : -320, 400);
+            Enemy::add(newEnemy);
         }
-        Enemy::add(newEnemy);
     }
     // Collision
     for (Enemy *enemy : Enemy::enemies) {
@@ -198,11 +214,11 @@ void MainManager::tick() {
     posDisplay = posDisplay + (position - posDisplay) * 10 * GAME_CLOCK;
 	if (Handler::keyPressSet.value(Qt::Key_W, false)) {
 		selectedOption = (selectedOption - 1 + 3) % 3; // 循环选择
-		position.setY(290 + selectedOption * 80);
+		position.setY(289 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_S, false)) {
 		selectedOption = (selectedOption + 1) % 3; // 循环选择
-		position.setY(290 + selectedOption * 80);
+		position.setY(289 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_J, false)) {
 		switch (selectedOption) {
