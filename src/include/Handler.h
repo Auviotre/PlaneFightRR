@@ -9,4 +9,7 @@ public:
 	static QMap<int, bool> keyPressingSet;
 	static QMap<int, bool> keyPressSet;
 	static QString font;
+	static int Difficulty;
+	static int ParAmount;
+	static bool CoMode;
 };

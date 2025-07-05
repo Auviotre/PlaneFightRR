@@ -197,14 +197,56 @@ void MainManager::drawFront(QPainter& painter) const {
 	font.setPixelSize(30);
 	painter.setFont(font);
 
-	QString options[3] = {"Start", "Settings", "Exit"};
+	QString options[3] = {"开始", "设置", "退出"};
 	for (int i = 0; i < 3; i++) {
-		if (i == selectedOption) {
+		if (i == selectedOption && setting != 1 && quiting != 1) {
 			painter.setPen(QPen(Qt::yellow, 2)); // 选中的选项用黄色显示
 		} else {
 			painter.setPen(QPen(Qt::white, 2));
 		}
 		painter.drawText(100, 300 + i * 80, options[i]);
+	}
+
+	if (setting == 1) {
+		QString options[3];
+		switch (Handler::Difficulty) {
+			case 0:
+				options[0] = "难度：简单";
+				break;
+			case 1:
+				options[0] = "难度：普通";
+				break;
+			case 2:
+				options[0] = "难度：困难";
+				break;
+		}
+		switch (Handler::ParAmount) {
+			case 0:
+				options[1] = "粒子量：无";
+				break;
+			case 1:
+				options[1] = "粒子量：少";
+				break;
+			case 2:
+				options[1] = "粒子量：全";
+				break;
+		}
+		if (Handler::CoMode) options[2] = "双人：开";
+		else options[2] = "双人：关";
+		for (int i = 0; i < 3; i++) {
+			if (i == selectedOption) {
+				painter.setPen(QPen(Qt::yellow, 2)); // 选中的选项用黄色显示
+			} else {
+				painter.setPen(QPen(Qt::white, 2));
+			}
+			painter.drawText(200, 380 + i * 80, options[i]);
+		}
+	}
+
+	if (quiting == 1) {
+		QString options = "确认退出？";
+		painter.setPen(QPen(Qt::yellow, 2));
+		painter.drawText(200, 620, options);
 	}
 }
 
@@ -214,25 +256,60 @@ void MainManager::tick() {
     posDisplay = posDisplay + (position - posDisplay) * 10 * GAME_CLOCK;
 	if (Handler::keyPressSet.value(Qt::Key_W, false)) {
 		selectedOption = (selectedOption - 1 + 3) % 3; // 循环选择
-		position.setY(289 + selectedOption * 80);
+		if (setting) position.setY(369 + selectedOption * 80);
+		else if (!quiting) position.setY(289 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_S, false)) {
 		selectedOption = (selectedOption + 1) % 3; // 循环选择
-		position.setY(289 + selectedOption * 80);
+		if (setting) position.setY(369 + selectedOption * 80);
+		else if (!quiting) position.setY(289 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_J, false)) {
-		switch (selectedOption) {
-			case 0: // 开始游戏
-				// 切换到 BattleManager
-				changeTo = 1;
-				break;
-			case 1: // 设置
-				// 切换到 SettingManager
-				changeTo = 2;
-				break;
-			case 2: // 退出
-				QApplication::quit();
-				break;
+		if (setting) {
+			switch (selectedOption) {
+				case 0: // 难度
+					Handler::Difficulty = (Handler::Difficulty + 1) % 3;
+					break;
+				case 1: // 粒子量
+					Handler::ParAmount = (Handler::ParAmount + 1) % 3;
+					break;
+				case 2: // 双人
+					if (Handler::CoMode) Handler::CoMode = false;
+					else Handler::CoMode = true;
+					break;
+			}
+		} else if (quiting) {
+			QApplication::quit();
+		} else {
+			switch (selectedOption) {
+				case 0: // 开始游戏
+					changeTo = 1;
+					break;
+				case 1: // 设置
+					position.setX(180);
+					selectedOption = 0;
+					setting = 1;
+					break;
+				case 2: // 退出
+					position.setX(180);
+					position.setY(609);
+					quiting = 1;
+					break;
+			}
+		}
+	}
+	if (Handler::keyPressSet.value(Qt::Key_K, false)) {
+		if (setting) {
+			setting = 0;
+			position.setX(80);
+			position.setY(369);
+			selectedOption = 1;
+		}
+		if (quiting) {
+			quiting = 0;
+			position.setX(80);
+			position.setY(449);
+			selectedOption = 2;
 		}
 	}
 }
