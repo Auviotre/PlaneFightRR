@@ -22,7 +22,6 @@ void MainWindow::updateManager() {
     switch (this->state) {
         case MAIN: manager = new MainManager; break;
         case BATTLE: manager = new BattleManager; break;
-        case SETTING: manager = new BattleManager; break;
         default: manager = new MainManager;
     }
     manager->init();
@@ -41,7 +40,6 @@ void MainWindow::playGame() {
             switch (manager->changeTo) {
                 case 0: break;
                 case 1: this->state = BATTLE; updateManager(); break;
-                case 2: this->state = SETTING; updateManager(); break;
                 case 3: this->state = MAIN; updateManager(); break;
             }
         }
