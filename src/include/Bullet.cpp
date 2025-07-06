@@ -17,7 +17,7 @@ void Bullet::tick() {
 	position += movement * GAME_CLOCK;
 	if (movement.x() == 0) imageRotation = movement.y() > 0 ? 90 : 270;
 	else imageRotation = qAtan2(movement.y(), movement.x()) / M_PI * 180.0;
-	if (position.y() > SCREEN_HEIGHT + 40 || position.y() < -40 || position.x() < -40 || position.x() > GAME_WIDTH + 60) {
+	if (position.y() > SCREEN_HEIGHT + 100 || position.y() < -100 || position.x() < -100 || position.x() > GAME_WIDTH + 120) {
 		kill(false);
 	}
 }

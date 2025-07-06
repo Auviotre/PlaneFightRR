@@ -37,7 +37,8 @@ QVector2D ParticleEngine::randOffset(double range) {
 }
 
 // Particle
-Particle::Particle(double s, double time) : size(s), lifetime(time) {
+Particle::Particle(double s, double time) : size(s) {
+	lifetime = time * 0.5 * Handler::ParAmount;
 	timer = lifetime;
 	hasFade = false;
 }

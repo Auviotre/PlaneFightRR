@@ -6,9 +6,9 @@ namespace Enemies {
 	class Base : public Enemy {
 	public:
 		Base() : Enemy("base", ENEMY, 10, 10) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 80);
-			attributeMap.setValue(Attribute::POWER, 10);
-			attributeMap.setValue(Attribute::DEFENCE, 0);
+			attributeMap.setValue(Attribute::MAX_DURABILITY, 80 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::POWER, 10 * Enemy::toMod);
+			attributeMap.setValue(Attribute::DEFENCE, (Enemy::toMod - 1) * 100);
 			durability = getMaxDurability();
 		}
 		~Base() noexcept {}
@@ -29,9 +29,9 @@ namespace Enemies {
 	class Strike : public Enemy {
 	public:
 		Strike() : Enemy("strike", ENEMY, 10, 20) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 80);
-			attributeMap.setValue(Attribute::POWER, 16);
-			attributeMap.setValue(Attribute::DEFENCE, 0);
+			attributeMap.setValue(Attribute::MAX_DURABILITY, 80 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::POWER, 16 * Enemy::toMod);
+			attributeMap.setValue(Attribute::DEFENCE, (Enemy::toMod - 1) * 100);
 			durability = getMaxDurability();
 			fireTimer = 10;
 		}
@@ -57,9 +57,9 @@ namespace Enemies {
 	class Healing : public Enemy {
 	public:
 		Healing() : Enemy("healing", ENEMY_HEALING, 12, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 100);
-			attributeMap.setValue(Attribute::POWER, 12);
-			attributeMap.setValue(Attribute::DEFENCE, 4);
+			attributeMap.setValue(Attribute::MAX_DURABILITY, 100 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::POWER, 12 * Enemy::toMod);
+			attributeMap.setValue(Attribute::DEFENCE, 4 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
 		}
 		~Healing() noexcept {}
@@ -79,14 +79,20 @@ namespace Enemies {
 				}
 			}
 		}
+		void kill(bool display) override {
+			if (lastHurt != nullptr && display && Player::players.contains(lastHurt)) {
+				lastHurt->setDurability(lastHurt->getDurability() + 30);
+			}
+			Enemy::kill(display);
+		}
 	};
 	
 	class Multi : public Enemy {
 	public:
 		Multi() : Enemy("multi", ENEMY_MULTI, 12, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 110);
-			attributeMap.setValue(Attribute::POWER, 10);
-			attributeMap.setValue(Attribute::DEFENCE, 2);
+			attributeMap.setValue(Attribute::MAX_DURABILITY, 110 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::POWER, 10 * Enemy::toMod);
+			attributeMap.setValue(Attribute::DEFENCE, 2 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
 		}
 		~Multi() noexcept {}
@@ -108,6 +114,13 @@ namespace Enemies {
 				Bullet::add(bullet);
 			}
 		}
+		void kill(bool display) override {
+			if (lastHurt != nullptr && display && Player::players.contains(lastHurt)) {
+				Player *p = dynamic_cast<Player *>(lastHurt);
+				p->multiTimer += 5 + p->multiTimer * 0.6;
+			}
+			Enemy::kill(display);
+		}
 	};
 
 	class Boost : public Enemy {
@@ -115,9 +128,9 @@ namespace Enemies {
 		int maxCap = 3;
 	public:
 		Boost() : Enemy("boost", ENEMY_BOOST, 11, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 105);
-			attributeMap.setValue(Attribute::POWER, 9);
-			attributeMap.setValue(Attribute::DEFENCE, 3);
+			attributeMap.setValue(Attribute::MAX_DURABILITY, 105 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::POWER, 9 * Enemy::toMod);
+			attributeMap.setValue(Attribute::DEFENCE, 4 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
 		}
 		~Boost() noexcept {}
@@ -138,6 +151,35 @@ namespace Enemies {
 				bullet->owner = this;
 				Bullet::add(bullet);
 			}
+		}
+		void kill(bool display) override {
+			if (lastHurt != nullptr && display && Player::players.contains(lastHurt)) {
+				Item *item;
+				int i = rand() % 4;
+				switch (i) {
+					case 0: item = new Items::Power; break;
+					case 1: item = new Items::Defence; break;
+					case 2: item = new Items::Durability; break;
+					default: item = new Items::Storage;
+				}
+				double x = 50 + rand() % 50;;
+				item->setPosition(getPosition());
+				item->setMovement(rand() % 2 ? -x : x, 80);
+				Item::add(item);
+				if (rand() % 3 == 0) {
+				int i = rand() % 3;
+					switch (i) {
+						case 0: item = new Items::Power; break;
+						case 1: item = new Items::Defence; break;
+						case 2: item = new Items::Durability; break;
+					}
+					double x = 50 + rand() % 50;;
+					item->setPosition(getPosition());
+					item->setMovement(rand() % 2 ? -x : x, 80);
+					Item::add(item);
+				}
+			}
+			Enemy::kill(display);
 		}
 	};
 }

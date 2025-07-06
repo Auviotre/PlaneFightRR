@@ -10,6 +10,7 @@ void BattleManager::clear() {
     Player::players.remove(0, Player::players.count());
     Bullet::bullets.remove(0, Bullet::bullets.count());
     Enemy::enemies.remove(0, Enemy::enemies.count());
+    Item::items.remove(0, Item::items.count());
 }
 
 void BattleManager::init() {
@@ -25,19 +26,24 @@ void BattleManager::drawBack(QPainter& painter) const {
     painter.setPen(QPen(Qt::black, 2));
     painter.setBrush(QBrush(Qt::black));
     painter.drawRect(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+	if (boss != nullptr) boss->drawBack(painter);
 }
 
 void BattleManager::drawFront(QPainter& painter) const {
     // Entities
+    for (Item *Item : Item::items) Item->draw(painter);
     for (Bullet *bullet : Bullet::bullets) bullet->draw(painter);
     for (Enemy *enemy : Enemy::enemies) enemy->draw(painter);
+	if (boss != nullptr) boss->draw(painter);
     for (Player *player : Player::players) player->draw(painter);
 
     // FrontGround
     painter.setPen(QPen(Qt::black, 1));
     painter.setBrush(QBrush(Qt::black));
     painter.drawRect(QRect(GAME_WIDTH + 20, 0, SCREEN_WIDTH - GAME_WIDTH, SCREEN_HEIGHT));
-    painter.setPen(QPen(Qt::green, 1));
+	if (Handler::Difficulty == 0) painter.setPen(QPen(QColor(128, 128, 255)));
+	if (Handler::Difficulty == 1) painter.setPen(QPen(Qt::green, 1));
+	if (Handler::Difficulty == 2) painter.setPen(QPen(Qt::red, 1));
     painter.setBrush(QBrush(Qt::black));
     for (int i = 0; i < 44; i++) {
         painter.drawRect(QRect(i * 10, 0, 10, 10));
@@ -51,7 +57,7 @@ void BattleManager::drawFront(QPainter& painter) const {
         painter.setBrush(QBrush(QColor(0, 0, 0, 100)));
         painter.drawRect(QRect(10, 10, GAME_WIDTH, GAME_HEIGHT));
         painter.setPen(QPen(Qt::white, 1));
-        QFont font = QFont(Handler::font);
+        QFont font = QFont(Handler::font1);
         font.setPixelSize(20);
         font.setWeight(QFont::Medium);
         painter.setFont(font);
@@ -59,18 +65,21 @@ void BattleManager::drawFront(QPainter& painter) const {
         painter.drawText(40, 170, QString("Press 'R' to return.").arg(Enemy::enemies.count()));
     }
     // Player Info
-    painter.setPen(QPen(Qt::white, 1));
-    QFont font = QFont(Handler::font);
-    font.setPixelSize(20);
-    font.setWeight(QFont::Medium);
-    painter.setFont(font);
-    painter.drawText(GAME_WIDTH + 30, 430, QString("EMY_C: %1").arg(Enemy::enemies.count()));
-    painter.drawText(GAME_WIDTH + 30, 450, QString("BLT_C: %1").arg(Bullet::bullets.count()));
-    painter.drawText(GAME_WIDTH + 30, 470, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
-    painter.drawText(GAME_WIDTH + 30, 30, QString("TIMER: %1s").arg(timer));
+	painter.setPen(QPen(Qt::white, 1));
+	QFont font = QFont(Handler::font1);
+	font.setPixelSize(20);
+	font.setWeight(QFont::Medium);
+	painter.setFont(font);
+	if (DEBUG) {
+		painter.drawText(GAME_WIDTH + 30, 430, QString("EMY_C: %1").arg(Enemy::enemies.count()));
+		painter.drawText(GAME_WIDTH + 30, 450, QString("BLT_C: %1").arg(Bullet::bullets.count()));
+		painter.drawText(GAME_WIDTH + 30, 470, QString("PTC_C: %1").arg(ParticleEngine::particles.count()));
+	}
     
+	painter.drawText(GAME_WIDTH + 30, 30, QString("TIMER: %1s").arg(timer));
     int id = 0;
     for (Player *player : Player::players) player->info(painter, id++);
+	if (boss != nullptr) boss->info(painter);
 }
 
 Enemy* getRand() {
@@ -94,10 +103,17 @@ void BattleManager::tick() {
     if (allDead) state = DEAD;
     if (state == PAUSE) return;
     // Tick
-    timer += 0.001 * GAME_RATE;
+    if (state == RUNNING) timer += 0.001 * GAME_RATE;
     for (Player *player : Player::players) player->tick();
     for (Enemy *enemy : Enemy::enemies) enemy->tick();
     for (Bullet *bullet : Bullet::bullets) bullet->tick();
+    for (Item *item : Item::items) item->tick();
+	if (boss != nullptr) boss->tick();
+	if (timer > 2 && !bossSummoned) {
+		bossSummoned = true;
+		boss = new Boss;
+		boss->setPosition(10 + GAME_WIDTH/2, -15);
+	}
     // Enemy Summon
     if (timer - summonTime > 1) {
         summonTime += 1;
@@ -123,6 +139,15 @@ void BattleManager::tick() {
             }
         }
     }
+	
+	if (boss != nullptr) {
+        for (Player *player : Player::players) {
+            QVector2D delta = boss->getPosition() - player->getPosition();
+            if (delta.length() < boss->getSize() + player->getSize()) {
+                boss->collisionWith(player);
+            }
+        }
+	}
 
     for (Bullet *bullet : Bullet::bullets) {
         for (Player *player : Player::players) {
@@ -138,6 +163,25 @@ void BattleManager::tick() {
                 bullet->hitOn(enemy);
             }
         }
+        
+		if (boss != nullptr) {
+			QVector2D delta = bullet->getPosition() - boss->getPosition();
+			if (delta.length() < bullet->getSize() + boss->getSize()) {
+				bullet->hitOn(boss);
+			}
+		}
+    }
+
+    for (Item *item : Item::items) {
+        for (Player *player : Player::players) {
+            QVector2D delta = item->getPosition() - player->getPosition();
+            if (abs(delta.x()) < item->getSize() + player->getSize()/1.4 && abs(delta.y()) < item->getSize() + player->getSize()/1.4) {
+                if (player->getDurability() > 0) {
+					item->addEffect(player);
+					item->kill(true);
+				}
+            }
+        }
     }
     // Discard
     QList<Enemy *> Elist = Enemy::enemies.toList();
@@ -149,6 +193,11 @@ void BattleManager::tick() {
     for (Bullet *bullet : Blist) if (bullet->discard) {
         Bullet::bullets.removeAll(bullet);
         delete bullet;
+    }
+    QList<Item *> Ilist = Item::items.toList();
+    for (Item *item : Ilist) if (item->discard) {
+        Item::items.removeAll(item);
+        delete item;
     }
 }
 
@@ -188,11 +237,15 @@ void MainManager::drawFront(QPainter& painter) const {
 	painter.drawLine(50, 185, SCREEN_WIDTH - 50, 185);
 
 	painter.setPen(QPen(Qt::white, 2));
-	QFont font = QFont(Handler::font);
+	QFont font = QFont(Handler::font1);
 	font.setPixelSize(80);
 	font.setWeight(QFont::Medium);
 	painter.setFont(font);
 	painter.drawText(50, 150, "Plane Fight");
+	font = QFont(Handler::font2);
+	font.setPixelSize(80);
+	font.setWeight(QFont::Medium);
+	painter.setFont(font);
 
 	font.setPixelSize(30);
 	painter.setFont(font);
@@ -231,7 +284,7 @@ void MainManager::drawFront(QPainter& painter) const {
 				options[1] = "粒子量：全";
 				break;
 		}
-		if (Handler::CoMode) options[2] = "双人：开";
+		if (Handler::CoMode) options[2] = "双人：开 [WIP]";
 		else options[2] = "双人：关";
 		for (int i = 0; i < 3; i++) {
 			if (i == selectedOption) {
@@ -246,7 +299,7 @@ void MainManager::drawFront(QPainter& painter) const {
 	if (quiting == 1) {
 		QString options = "确认退出？";
 		painter.setPen(QPen(Qt::yellow, 2));
-		painter.drawText(200, 620, options);
+		painter.drawText(250, 620, options);
 	}
 }
 

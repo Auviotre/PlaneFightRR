@@ -10,6 +10,7 @@
 #include "include/Bullet.h"
 #include "include/Handler.h"
 #include "registers/Enemies.h"
+#include "registers/Boss.h"
 
 class ScreenManager {
 public:
@@ -26,8 +27,10 @@ public:
 class BattleManager : public ScreenManager {
     double timer;
     double summonTime;
+    bool bossSummoned = false;
 	enum BattleState {DEAD, PAUSE, RUNNING};
 	BattleState state = RUNNING;
+    Boss *boss = nullptr;
 public:
     BattleManager();
 	~BattleManager() noexcept;

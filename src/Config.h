@@ -10,7 +10,6 @@
 #define GAME_ICON "../src/resource/system/tick"
 #define GAME_RATE (10)
 #define GAME_CLOCK (0.001 * GAME_RATE)
-#define FONT "DTM-momo"
 
 #define PLAYER_PLANE "../src/resource/player/plane1"
 #define PLAYER_BULLET "../src/resource/player/player_bullet"
@@ -21,4 +20,15 @@
 #define ENEMY_BOOST "../src/resource/enemy/enemy_da"
 #define ENEMY_BULLET "../src/resource/enemy/bullets/enemy_bullet"
 #define ENEMY_ROCKET "../src/resource/enemy/bullets/enemy_rocket"
+#define PINK_ROCKET "../src/resource/enemy/bullets/pink_rocket"
 #define ARROW "../src/resource/system/arrow"
+
+#define BASE_PLATE1 "../src/resource/player/bonus/baseplate"
+#define BASE_PLATE2 "../src/resource/player/bonus/baseplate_2"
+#define BONUS_POWER "../src/resource/player/bonus/power"
+#define BONUS_DEF "../src/resource/player/bonus/def"
+#define BONUS_DURA "../src/resource/player/bonus/dura"
+#define BONUS_STORAGE "../src/resource/player/bonus/storage"
+#define BONUS_HEAL "../src/resource/player/bonus/croos"
+
+#define BOSS "../src/resource/enemy/enemy_boss2"

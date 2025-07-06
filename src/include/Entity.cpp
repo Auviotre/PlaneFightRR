@@ -33,9 +33,21 @@ void Entity::tick() {
 	if (getDurability() <= 0) kill(true);
 }
 
+double defenceCul(double damage, double defence) {
+	double damageLow = floor(damage / 2.5);
+	if (defence < damageLow) return damage - defence;
+	defence -= damageLow;
+	damage -= damageLow;
+	double damageHigh = floor(damage);
+	double modifier = (int) (defence) % (int) (damage / 2) / damageHigh;
+	if (defence > damageHigh) 
+	modifier = modifier + 0.3*(1-exp(damageHigh - defence));
+	return damage * (1 - modifier);
+}
+
 bool Entity::damage(double amount, Entity* attacker) {
 	if (attacker == this) return false;
-	double left = getDurability() - amount;
+	double left = getDurability() - defenceCul(amount,  getAttributes().getValue(Attribute::DEFENCE));
 	setDurability(left);
 	hit_time = 2;
 	return true;

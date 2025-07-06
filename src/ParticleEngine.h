@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QPainter>
 #include "Config.h"
+#include "include/Handler.h"
 
 class Particle {
 	QVector2D pos;

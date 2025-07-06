@@ -1,6 +1,7 @@
 #include "AbstructEnemy.h"
 
 QVector<Enemy *> Enemy::enemies;
+double Enemy::toMod = 1;
 void Enemy::add(Enemy *enemy) {
     Enemy::enemies.append(enemy);
 }
@@ -9,6 +10,7 @@ Enemy::Enemy() : Entity() {}
 
 Enemy::Enemy(QString id, QString location, double size, int score) : Entity(id, location, size) {
 	this->score = score;
+	Enemy::toMod += 0.001;
 }
 
 Enemy::~Enemy() {}
@@ -20,12 +22,30 @@ void Enemy::tick() {
 	}
 }
 
+Item *getRandItem() {
+    int i = rand() % 5;
+	switch (i) {
+	case 0: return new Items::Power;
+	case 1: return new Items::Defence;
+	case 2: return new Items::Durability;
+	case 3: return new Items::Heal;
+	default: return new Items::Storage;
+	}
+}
+
 void Enemy::kill(bool display) {
-	if (lastHurt != nullptr && Player::players.contains(lastHurt)) {
-		if (rand() % 3 == 0 && dynamic_cast<Player *>(lastHurt)) {
+	if (lastHurt != nullptr && display && Player::players.contains(lastHurt)) {
+		if (rand() % 3 == 0) {
 			lastHurt->score += this->score;
 			Player *p = dynamic_cast<Player *>(lastHurt);
 			p->storage++;
+		}
+		if (rand() % 4 == 0 && display) {
+			Item *i = getRandItem();
+			double x = 50 + rand() % 50;;
+			i->setPosition(getPosition());
+			i->setMovement(rand() % 2 ? -x : x, 80);
+			Item::add(i);
 		}
 	}
 	Entity::kill(display);
