@@ -57,20 +57,20 @@ void Player::behaviorTick() {
 			bullet->owner = this;
 			Bullet::add(bullet);
 			if (multiTimer > 0) {
-					double x = 400 * sin(M_PI / 12);
-					double y = -400 * cos(M_PI / 12);
-					Bullet *bullet = new Bullets::PlayerBase;
-					bullet->setPosition(getPosition());
-					bullet->setMovement(x, y);
-					bullet->setDamage(attributeMap.getValue(Attribute::POWER)*0.8);
-					bullet->owner = this;
-					Bullet::add(bullet);
-					bullet = new Bullets::PlayerBase;
-					bullet->setPosition(getPosition());
-					bullet->setMovement(-x, y);
-					bullet->setDamage(attributeMap.getValue(Attribute::POWER)*0.8);
-					bullet->owner = this;
-					Bullet::add(bullet);
+				double x = 400 * sin(M_PI / 12);
+				double y = -400 * cos(M_PI / 12);
+				Bullet *bullet = new Bullets::PlayerBase;
+				bullet->setPosition(getPosition());
+				bullet->setMovement(x, y);
+				bullet->setDamage(attributeMap.getValue(Attribute::POWER)*0.8);
+				bullet->owner = this;
+				Bullet::add(bullet);
+				bullet = new Bullets::PlayerBase;
+				bullet->setPosition(getPosition());
+				bullet->setMovement(-x, y);
+				bullet->setDamage(attributeMap.getValue(Attribute::POWER)*0.8);
+				bullet->owner = this;
+				Bullet::add(bullet);
 			}
 		} else fireTimer = qMax(0.0, fireTimer - GAME_CLOCK);
 	} else fireTimer = qMax(0.0, fireTimer - GAME_CLOCK);

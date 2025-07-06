@@ -28,7 +28,7 @@ class BattleManager : public ScreenManager {
     double timer;
     double summonTime;
     bool bossSummoned = false;
-	enum BattleState {DEAD, PAUSE, RUNNING};
+	enum BattleState {DEAD, PAUSE, RUNNING, WIN};
 	BattleState state = RUNNING;
     Boss *boss = nullptr;
 public:

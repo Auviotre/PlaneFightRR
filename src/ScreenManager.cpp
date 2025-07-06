@@ -53,7 +53,7 @@ void BattleManager::drawFront(QPainter& painter) const {
         painter.drawRect(QRect(0, i * 10, 10, 10));
         painter.drawRect(QRect(GAME_WIDTH + 10, i * 10, 10, 10));
     }
-    if (state < 2) {
+    if (state != RUNNING) {
         painter.setBrush(QBrush(QColor(0, 0, 0, 100)));
         painter.drawRect(QRect(10, 10, GAME_WIDTH, GAME_HEIGHT));
         painter.setPen(QPen(Qt::white, 1));
@@ -61,8 +61,13 @@ void BattleManager::drawFront(QPainter& painter) const {
         font.setPixelSize(20);
         font.setWeight(QFont::Medium);
         painter.setFont(font);
-        painter.drawText(40, 150, state == PAUSE ? QString("Pause...") : QString("You Failed!"));
-        painter.drawText(40, 170, QString("Press 'R' to return.").arg(Enemy::enemies.count()));
+		if (state == PAUSE) painter.drawText(40, 150, QString("You Failed!"));
+		if (state == DEAD) painter.drawText(40, 150, QString("You Failed!"));
+		if (state == WIN) {
+			painter.drawText(40, 150, QString("You Win!"));
+			painter.drawText(40, 190, QString("Your Score: %1").arg(Player::getRand()->score));
+		}
+		painter.drawText(40, 170, QString("Press 'R' to return.").arg(Enemy::enemies.count()));
     }
     // Player Info
 	painter.setPen(QPen(Qt::white, 1));
@@ -77,6 +82,7 @@ void BattleManager::drawFront(QPainter& painter) const {
 	}
     
 	painter.drawText(GAME_WIDTH + 30, 30, QString("TIMER: %1s").arg(timer));
+	painter.drawText(GAME_WIDTH + 30, 50, QString("RECORD: %1").arg(Handler::scoreRecord));
     int id = 0;
     for (Player *player : Player::players) player->info(painter, id++);
 	if (boss != nullptr) boss->info(painter);
@@ -84,9 +90,9 @@ void BattleManager::drawFront(QPainter& painter) const {
 
 Enemy* getRand() {
     int i = rand() % 100;
-    if (i < 70) return new Enemies::Base;
-    if (i < 80) return new Enemies::Multi;
-    if (i < 90) return new Enemies::Boost;
+    if (i < 76) return new Enemies::Base;
+    if (i < 84) return new Enemies::Multi;
+    if (i < 92) return new Enemies::Boost;
     return new Enemies::Healing;
 }
 
@@ -95,13 +101,16 @@ void BattleManager::tick() {
         if (state == RUNNING) state = PAUSE;
         else if (state == PAUSE) state = RUNNING;
     }
-    if (state < 2 && Handler::keyPressSet.value(Qt::Key_R, false)) {
+    if (state != RUNNING && Handler::keyPressSet.value(Qt::Key_R, false)) {
         changeTo = 3;
+		Handler::scoreRecord = qMax(Handler::scoreRecord, Player::getRand()->score);
+		Handler::updateScoreRecord();
     }
     bool allDead = true;
     for (Player *player : Player::players) if (player->getDurability() > 0) allDead = false;
     if (allDead) state = DEAD;
-    if (state == PAUSE) return;
+	if (bossSummoned && boss == nullptr) state = WIN;
+    if (state == PAUSE || state == WIN) return;
     // Tick
     if (state == RUNNING) timer += 0.001 * GAME_RATE;
     for (Player *player : Player::players) player->tick();
@@ -109,7 +118,7 @@ void BattleManager::tick() {
     for (Bullet *bullet : Bullet::bullets) bullet->tick();
     for (Item *item : Item::items) item->tick();
 	if (boss != nullptr) boss->tick();
-	if (timer > 2 && !bossSummoned) {
+	if (timer > 50 && !bossSummoned) {
 		bossSummoned = true;
 		boss = new Boss;
 		boss->setPosition(10 + GAME_WIDTH/2, -15);
@@ -199,6 +208,12 @@ void BattleManager::tick() {
         Item::items.removeAll(item);
         delete item;
     }
+	if (boss != nullptr) {
+		if (boss->discard) {
+			delete boss;
+			boss = nullptr;
+		}
+	}
 }
 
 MainManager::MainManager() : selectedOption(0) {
@@ -318,6 +333,7 @@ void MainManager::tick() {
 		else if (!quiting) position.setY(289 + selectedOption * 80);
 	}
 	if (Handler::keyPressSet.value(Qt::Key_J, false)) {
+		Handler::updateSettings();
 		if (setting) {
 			switch (selectedOption) {
 				case 0: // 难度

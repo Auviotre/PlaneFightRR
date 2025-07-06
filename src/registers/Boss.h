@@ -14,7 +14,7 @@ class Boss : public Enemy {
 	double displayer = 0;
 public:
 	Boss() : Enemy("boss", BOSS, 9, 1200) {
-		attributeMap.setValue(Attribute::MAX_DURABILITY, 320);
+		attributeMap.setValue(Attribute::MAX_DURABILITY, Handler::Difficulty == 0 ? 2500 : 3200);
 		attributeMap.setValue(Attribute::POWER, 24);
 		attributeMap.setValue(Attribute::DEFENCE, 10);
 		durability = getMaxDurability();
@@ -31,6 +31,7 @@ public:
 		hit_time = hit_time < 0 ? 0 : hit_time - GAME_CLOCK;
 		if (getDurability() < 0) setDurability(0);
 		if (getDurability() > getMaxDurability()) setDurability(getMaxDurability());
+		if (getDurability() <= 0) kill(true);
 		displayer = displayer + (getDurability() - displayer) * 5 * GAME_CLOCK;
 
 		if (state == SUMMON && next_state == IDLE) {
