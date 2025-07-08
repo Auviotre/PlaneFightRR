@@ -6,7 +6,7 @@ namespace Enemies {
 	class Base : public Enemy {
 	public:
 		Base() : Enemy("base", ENEMY, 10, 10) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 80 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::MAX_DURABILITY, (Handler::Difficulty == 0 ? 60 : 80) * (Enemy::toMod * Enemy::toMod));
 			attributeMap.setValue(Attribute::POWER, 10 * Enemy::toMod);
 			attributeMap.setValue(Attribute::DEFENCE, (Enemy::toMod - 1) * 100);
 			durability = getMaxDurability();
@@ -29,7 +29,7 @@ namespace Enemies {
 	class Strike : public Enemy {
 	public:
 		Strike() : Enemy("strike", ENEMY, 10, 20) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 80 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::MAX_DURABILITY, (Handler::Difficulty == 0 ? 50 : 80) * (Enemy::toMod * Enemy::toMod));
 			attributeMap.setValue(Attribute::POWER, 16 * Enemy::toMod);
 			attributeMap.setValue(Attribute::DEFENCE, (Enemy::toMod - 1) * 100);
 			durability = getMaxDurability();
@@ -41,7 +41,7 @@ namespace Enemies {
 			fireTimer += GAME_CLOCK;
 			movement.setY(movement.y() - 360 * GAME_CLOCK);
 			if (fireTimer > 0) {
-				fireTimer = -0.32;
+				fireTimer = -0.48;
 				Bullets::Rocket *bullet = new Bullets::Rocket;
 				bullet->setPosition(getPosition());
 				double sp = movement.x() > 0 ? 240 : -240;
@@ -57,7 +57,7 @@ namespace Enemies {
 	class Healing : public Enemy {
 	public:
 		Healing() : Enemy("healing", ENEMY_HEALING, 12, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 100 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::MAX_DURABILITY, (Handler::Difficulty == 0 ? 70 : 100) * (Enemy::toMod * Enemy::toMod));
 			attributeMap.setValue(Attribute::POWER, 12 * Enemy::toMod);
 			attributeMap.setValue(Attribute::DEFENCE, 4 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
@@ -90,7 +90,7 @@ namespace Enemies {
 	class Multi : public Enemy {
 	public:
 		Multi() : Enemy("multi", ENEMY_MULTI, 12, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 110 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::MAX_DURABILITY, (Handler::Difficulty == 0 ? 85 : 110) * (Enemy::toMod * Enemy::toMod));
 			attributeMap.setValue(Attribute::POWER, 10 * Enemy::toMod);
 			attributeMap.setValue(Attribute::DEFENCE, 2 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
@@ -128,7 +128,7 @@ namespace Enemies {
 		int maxCap = 3;
 	public:
 		Boost() : Enemy("boost", ENEMY_BOOST, 11, 15) {
-			attributeMap.setValue(Attribute::MAX_DURABILITY, 105 * (Enemy::toMod * Enemy::toMod));
+			attributeMap.setValue(Attribute::MAX_DURABILITY, (Handler::Difficulty == 0 ? 85 : 105) * (Enemy::toMod * Enemy::toMod));
 			attributeMap.setValue(Attribute::POWER, 9 * Enemy::toMod);
 			attributeMap.setValue(Attribute::DEFENCE, 4 * Enemy::toMod + (Enemy::toMod - 1) * 200);
 			durability = getMaxDurability();
