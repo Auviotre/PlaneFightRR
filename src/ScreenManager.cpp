@@ -61,7 +61,7 @@ void BattleManager::drawFront(QPainter& painter) const {
         font.setPixelSize(20);
         font.setWeight(QFont::Medium);
         painter.setFont(font);
-		if (state == PAUSE) painter.drawText(40, 150, QString("You Failed!"));
+		if (state == PAUSE) painter.drawText(40, 150, QString("PAUSE"));
 		if (state == DEAD) painter.drawText(40, 150, QString("You Failed!"));
 		if (state == WIN) {
 			painter.drawText(40, 150, QString("You Win!"));
@@ -118,20 +118,20 @@ void BattleManager::tick() {
     for (Bullet *bullet : Bullet::bullets) bullet->tick();
     for (Item *item : Item::items) item->tick();
 	if (boss != nullptr) boss->tick();
-	if (timer > 50 && !bossSummoned) {
+	if (timer > 80 && !bossSummoned) {
 		bossSummoned = true;
 		boss = new Boss;
 		boss->setPosition(10 + GAME_WIDTH/2, -15);
 	}
     // Enemy Summon
     if (timer - summonTime > 1) {
-        summonTime += 1;
+        summonTime += 1 + bossSummoned * 0.5;
         Enemy *newEnemy;
         newEnemy = getRand();
         newEnemy->setPosition(rand() % (GAME_WIDTH - 10) + 20, -20);
         newEnemy->setMovement(0, 80 + rand() % 80);
         Enemy::add(newEnemy);
-        if (rand() % 5 == 0) {
+        if (rand() % 7 == 0) {
             newEnemy = new Enemies::Strike;
             int r = rand() % 2;
             newEnemy->setPosition(r ? -30 : GAME_WIDTH + 50, rand() % 100);

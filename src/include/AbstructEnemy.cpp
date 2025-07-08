@@ -10,7 +10,8 @@ Enemy::Enemy() : Entity() {}
 
 Enemy::Enemy(QString id, QString location, double size, int score) : Entity(id, location, size) {
 	this->score = score;
-	Enemy::toMod += 0.001;
+	double Rate = Handler::Difficulty == 0 ? 0.0 : Handler::Difficulty == 1 ? 0.5 : 1.0;
+	Enemy::toMod += 0.001 * Rate;
 }
 
 Enemy::~Enemy() {}
@@ -40,7 +41,8 @@ void Enemy::kill(bool display) {
 			Player *p = dynamic_cast<Player *>(lastHurt);
 			p->storage++;
 		}
-		if (rand() % 4 == 0 && display) {
+		int bonusRate = Handler::Difficulty == 0 ? 3 : 4;
+		if (rand() % bonusRate == 0 && display) {
 			Item *i = getRandItem();
 			double x = 50 + rand() % 50;;
 			i->setPosition(getPosition());
